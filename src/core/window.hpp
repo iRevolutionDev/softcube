@@ -29,10 +29,16 @@ public:
     void update();
 
     /**
+     * @brief Sets the window to be closed
+     * @param should_close Sets the flag to indicate if the window should close
+     */
+    void set_should_close(const bool should_close) { this->should_close = should_close; }
+
+    /**
      * @brief Checks if the window should be closed
      * @return True if the window should close, false otherwise
      */
-    bool should_close() const;
+    bool get_should_close() const;
 
     /**
      * @brief Gets the GLFW window handle
@@ -64,4 +70,6 @@ private:
     int height;
     bool fullscreen;
     std::string title;
+
+    bool should_close = false;
 };

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <entt/entt.hpp>
 
+class InputManager;
 // Forward declarations
 class Window;
 // class Renderer;
@@ -73,8 +74,8 @@ private:
 
     // Core subsystems
     std::unique_ptr<Window> window;
+    std::unique_ptr<InputManager> input_manager;
     // std::unique_ptr<Renderer> renderer;
-    // std::unique_ptr<InputManager> input_manager;
     // std::unique_ptr<ResourceManager> resource_manager;
     // std::unique_ptr<SceneManager> scene_manager;
     // std::unique_ptr<PhysicsSystem> physics_system;
@@ -86,7 +87,8 @@ private:
     // Engine state
     bool is_running;
     double delta_time;
-    double last_frame_time;
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+    std::chrono::time_point<std::chrono::high_resolution_clock> last_time;
 
     // Configuration
     struct EngineConfig {

@@ -44,8 +44,8 @@ void Window::update() {
     SDL_GetWindowSize(window, &width, &height);
 }
 
-bool Window::should_close() const {
-    return false;
+bool Window::get_should_close() const {
+    return this->should_close;
 }
 
 void Window::set_title(const std::string &title) {
