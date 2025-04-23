@@ -1,7 +1,4 @@
 #pragma once
-#include <memory>
-#include <string>
-#include <vector>
 
 class Window;
 
@@ -51,6 +48,9 @@ public:
      * @param a Alpha component (0-1)
      */
     void set_clear_color(float r, float g, float b, float a);
+
+    [[nodiscard]] float get_width() const { return width; }
+    [[nodiscard]] float get_height() const { return height; }
 
 private:
     Window *window;

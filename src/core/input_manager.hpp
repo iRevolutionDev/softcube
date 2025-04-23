@@ -4,8 +4,6 @@
 #include <functional>
 #include <string>
 
-#define SDL_NUM_SCANCODES 512
-
 class Window;
 
 /**
@@ -116,8 +114,8 @@ private:
     Window *window;
 
     // Key and mouse states
-    std::array<KeyState, SDL_NUM_SCANCODES> current_key_states;
-    std::array<KeyState, SDL_NUM_SCANCODES> previous_key_states;
+    std::array<KeyState, 512> current_key_states;
+    std::array<KeyState, 512> previous_key_states;
     std::array<KeyState, static_cast<size_t>(MouseButton::Count)> mouse_button_states;
     std::array<KeyState, static_cast<size_t>(MouseButton::Count)> prev_mouse_button_states;
 

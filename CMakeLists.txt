@@ -34,26 +34,37 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE "${SRC_DIR}/common.hpp")
 
 # Shader Compilation
 message(STATUS "Compiling shaders...")
-file(GLOB SHADER_FILES
-        "assets/shaders/**.sc"
-        "assets/shaders/**.fs"
-)
+file(GLOB VERTEX_SHADER_FILES "assets/shaders/v_*.sc")
+file(GLOB FRAGMENT_SHADER_FILES "assets/shaders/f_*.sc")
 
+# Create output directory for shader headers
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/include/generated/shaders")
+
+# Compile vertex shaders
 bgfx_compile_shaders(
         TYPE VERTEX
-        assets/shaders ${SHADER_FILES}
-        VARYING_DEF "assets/shaders/varying.def.sc"
-        OUTPUT_DIR ${CMAKE_BINARY_DIR}/include/generated/shaders
+        SHADERS ${VERTEX_SHADER_FILES}
+        VARYING_DEF "${PROJECT_SOURCE_DIR}/assets/shaders/varying.def.sc"
+        OUTPUT_DIR "${CMAKE_BINARY_DIR}/include/generated/shaders"
         AS_HEADERS
 )
 
+# Compile fragment shaders
 bgfx_compile_shaders(
         TYPE FRAGMENT
-        assets/shaders ${SHADER_FILES}
-        VARYING_DEF "assets/shaders/varying.def.sc"
-        OUTPUT_DIR ${CMAKE_BINARY_DIR}/include/generated/shaders
+        SHADERS ${FRAGMENT_SHADER_FILES}
+        VARYING_DEF "${PROJECT_SOURCE_DIR}/assets/shaders/varying.def.sc"
+        OUTPUT_DIR "${CMAKE_BINARY_DIR}/include/generated/shaders"
         AS_HEADERS
 )
+
+# Create an interface library for shader dependencies
+add_library(shaders INTERFACE)
+target_sources(shaders INTERFACE ${VERTEX_SHADER_FILES} ${FRAGMENT_SHADER_FILES})
+target_include_directories(shaders INTERFACE "${CMAKE_BINARY_DIR}/include/generated/shaders")
+
+# Add shader dependency to main project
+add_dependencies(${PROJECT_NAME} shaders)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         "${SRC_DIR}"
@@ -72,15 +83,16 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         bx
         SDL3::SDL3
         imgui
+        shaders
         ${CMAKE_DL_LIBS}
 )
 
-# Copy shaders directory to the build directory
-#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy_directory
-#        "assets/shaders"
-#        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders"
-#)
+#Copy shaders directory to the build directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/assets/shaders"
+        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/shaders"
+)
 
 if (WIN32)
     add_custom_command(

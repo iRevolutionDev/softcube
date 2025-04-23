@@ -4,6 +4,8 @@
 #include "core/input_manager.hpp"
 #include "core/renderer.hpp"
 #include "core/window.hpp"
+#include "scene/game_scene.hpp"
+#include "scene/scene_manager.hpp"
 
 Engine::Engine()
     : is_running(false) {
@@ -19,6 +21,7 @@ bool Engine::init(int argc, char **argv) {
     window = std::make_unique<Window>();
     input_manager = std::make_unique<InputManager>();
     renderer = std::make_unique<Renderer>();
+    scene_manager = std::make_unique<SceneManager>();
 
     if (!window->init(1280, 720, "SoftCube Engine", false)) {
         std::cerr << "Failed to initialize window." << std::endl;
@@ -34,6 +37,14 @@ bool Engine::init(int argc, char **argv) {
         std::cerr << "Failed to initialize renderer." << std::endl;
         return false;
     }
+
+    if (!scene_manager->init()) {
+        std::cerr << "Failed to initialize scene manager." << std::endl;
+        return false;
+    }
+
+    auto game_scene = std::make_shared<GameScene>();
+    scene_manager->add_scene(game_scene);
 
     is_running = true;
 
@@ -56,9 +67,11 @@ bool Engine::run() {
         return false;
     }
 
+    scene_manager->update(delta_time);
+
     renderer->begin_frame();
 
-
+    scene_manager->render(renderer.get());
 
     renderer->end_frame();
 

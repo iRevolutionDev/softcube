@@ -1,23 +1,12 @@
 #pragma once
 #include <memory>
-#include <vector>
 #include <string>
-#include <unordered_map>
 #include <entt/entt.hpp>
 
+class Window;
+class SceneManager;
 class Renderer;
 class InputManager;
-// Forward declarations
-class Window;
-// class Renderer;
-// class InputManager;
-// class ResourceManager;
-// class SceneManager;
-// class PhysicsSystem;
-// class AudioSystem;
-// class World;
-// class EventSystem;
-// class DebugSystem;
 
 /**
  * @class Engine
@@ -77,13 +66,7 @@ private:
     std::unique_ptr<Window> window;
     std::unique_ptr<InputManager> input_manager;
     std::unique_ptr<Renderer> renderer;
-    // std::unique_ptr<ResourceManager> resource_manager;
-    // std::unique_ptr<SceneManager> scene_manager;
-    // std::unique_ptr<PhysicsSystem> physics_system;
-    // std::unique_ptr<AudioSystem> audio_system;
-    // std::unique_ptr<World> world;
-    // std::unique_ptr<EventSystem> event_system;
-    // std::unique_ptr<DebugSystem> debug_system;
+    std::unique_ptr<SceneManager> scene_manager;
 
     // Engine state
     bool is_running;

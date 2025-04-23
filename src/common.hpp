@@ -61,6 +61,10 @@
 #include <tlhelp32.h>
 
 #include <bgfx/bgfx.h>
+#include <bgfx/platform.h>
+#include <bx/bx.h>
+#include <bx/math.h>
+#include <bgfx/embedded_shader.h>
 
 #include "imgui.h"
 
