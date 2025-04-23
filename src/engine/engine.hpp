@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <entt/entt.hpp>
 
+class Renderer;
 class InputManager;
 // Forward declarations
 class Window;
@@ -75,7 +76,7 @@ private:
     // Core subsystems
     std::unique_ptr<Window> window;
     std::unique_ptr<InputManager> input_manager;
-    // std::unique_ptr<Renderer> renderer;
+    std::unique_ptr<Renderer> renderer;
     // std::unique_ptr<ResourceManager> resource_manager;
     // std::unique_ptr<SceneManager> scene_manager;
     // std::unique_ptr<PhysicsSystem> physics_system;

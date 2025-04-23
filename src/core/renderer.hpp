@@ -15,6 +15,7 @@ class Window;
 class Renderer {
 public:
     Renderer();
+
     ~Renderer();
 
     /**
@@ -23,7 +24,7 @@ public:
      * @param vsync Whether to enable vsync
      * @return True if initialization succeeded, false otherwise
      */
-    bool init(Window* window, bool vsync);
+    bool init(Window *window, bool vsync);
 
     /**
      * @brief Begins a new frame for rendering
@@ -52,11 +53,13 @@ public:
     void set_clear_color(float r, float g, float b, float a);
 
 private:
-    Window* window;
+    Window *window;
     uint32_t reset_flags;
     uint32_t clear_flags;
     uint32_t width;
     uint32_t height;
+    bool vsync;
+    bgfx::FrameBufferHandle frame_buffer = BGFX_INVALID_HANDLE;
     float clear_color[4];
     bool initialized;
 };

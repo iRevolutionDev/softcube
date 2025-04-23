@@ -64,6 +64,8 @@ public:
      */
     void set_title(const std::string &title);
 
+    SDL_Window *get_sdl_window() const { return window; }
+
 private:
     SDL_Window *window;
     int width;
