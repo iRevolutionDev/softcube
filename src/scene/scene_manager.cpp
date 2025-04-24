@@ -24,14 +24,14 @@ void SceneManager::add_scene(std::shared_ptr<Scene> scene) {
     }
 
     scenes[name] = scene;
-    std::cout << "Scene added: " << name.c_str() << std::endl;
+    SC_LOG_INFO("Scene added: {}", name);
 
     if (!current_scene) {
         scene->on_load();
         scene->on_enter();
         current_scene = scene;
 
-        std::cout << "Current scene: " << name.c_str() << std::endl;
+        SC_LOG_INFO("Current scene: {}", name);
     }
 }
 

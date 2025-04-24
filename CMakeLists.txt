@@ -10,6 +10,7 @@ include(scripts/bgfx.cmake)
 include(scripts/sdl3.cmake)
 include(scripts/imgui.cmake)
 include(scripts/entt.cmake)
+include(scripts/spdlog.cmake)
 
 # Project Files
 file(GLOB_RECURSE SRC_FILES
@@ -73,6 +74,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         "${BX_INCLUDE_DIR}"
         "${SDL3_INCLUDE_DIR}"
         "${imgui_SOURCE_DIR}"
+        "${spdlog_SOURCE_DIR}"
         "${entt_SOURCE_DIR}/src"
         "${CMAKE_BINARY_DIR}/include/generated/shaders"
 )
@@ -84,6 +86,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         SDL3::SDL3
         imgui
         shaders
+        spdlog
         ${CMAKE_DL_LIBS}
 )
 

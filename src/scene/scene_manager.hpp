@@ -1,8 +1,11 @@
 #pragma once
 #include "core/renderer.hpp"
 #include "scene.hpp"
+#include "core/logging.hpp"
 
 class SceneManager {
+    SC_LOG_GROUP(LogGroups::SCENE_MANAGER);
+
 public:
     SceneManager();
 
