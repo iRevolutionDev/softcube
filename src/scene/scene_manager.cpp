@@ -13,13 +13,13 @@ bool SceneManager::init() {
 
 void SceneManager::add_scene(std::shared_ptr<Scene> scene) {
     if (!scene) {
-        std::cerr << "Scene is null" << std::endl;
+        SC_LOG_ERROR("Failed to add scene: Scene pointer is null");
         return;
     }
 
     const auto name = scene->get_name();
     if (scenes.contains(name)) {
-        std::cerr << "Scene already exists" << std::endl;
+        SC_LOG_WARN("Scene '{}' already exists, not adding duplicate", name);
         return;
     }
 
@@ -41,12 +41,12 @@ void SceneManager::remove_scene(const std::string &name) {
     if (it == scenes.end()) {
         return;
     }
-
     if (current_scene && current_scene->get_name() == name) {
-        std::cerr << "Cannot remove current scene" << std::endl;
+        SC_LOG_WARN("Cannot remove scene '{}' because it is currently active", name);
         return;
     }
 
+    SC_LOG_INFO("Removing scene '{}'", name);
     it->second->on_unload();
     scenes.erase(it);
     std::cout << "Scene removed: " << name << std::endl;

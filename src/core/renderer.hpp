@@ -1,4 +1,5 @@
 #pragma once
+#include "logging.hpp"
 
 class Window;
 
@@ -10,6 +11,8 @@ class Window;
  * managing render states, and drawing the scene.
  */
 class Renderer {
+    SC_LOG_GROUP(GRAPHICS::RENDERER);
+
 public:
     Renderer();
 

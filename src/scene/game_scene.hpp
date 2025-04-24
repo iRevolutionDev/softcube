@@ -1,5 +1,6 @@
 #pragma once
 #include "scene.hpp"
+#include "core/logging.hpp"
 
 struct PosColorVertex {
     float x;
@@ -9,6 +10,8 @@ struct PosColorVertex {
 };
 
 class GameScene : public Scene {
+    SC_LOG_GROUP(SCENE::GAME_SCENE);
+
 public:
     GameScene();
 

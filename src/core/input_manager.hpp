@@ -4,6 +4,8 @@
 #include <functional>
 #include <string>
 
+#include "logging.hpp"
+
 class Window;
 
 /**
@@ -14,6 +16,8 @@ class Window;
  * It provides a high-level interface for querying input states and registering callbacks.
  */
 class InputManager {
+    SC_LOG_GROUP(CORE::INPUT_MANAGER);
+
 public:
     enum class KeyState {
         Released = 0,

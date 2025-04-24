@@ -13,6 +13,9 @@ Renderer::~Renderer() {
 }
 
 bool Renderer::init(Window *window, bool vsync) {
+    SC_LOG_INFO("Initializing renderer with dimensions {}x{}, vsync: {}", 
+               window->get_width(), window->get_height(), vsync);
+    
     this->window = window;
     this->width = window->get_width();
     this->height = window->get_height();
@@ -50,12 +53,12 @@ bool Renderer::init(Window *window, bool vsync) {
     init.type = bgfx::RendererType::Count;
     init.resolution.width = width;
     init.resolution.height = height;
-    init.resolution.reset = vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;
-
-    if (!bgfx::init(init)) {
+    init.resolution.reset = vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;    if (!bgfx::init(init)) {
+        SC_LOG_ERROR("Failed to initialize BGFX renderer");
         return false;
     }
 
+    SC_LOG_INFO("BGFX renderer initialized successfully");
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
     bgfx::setViewRect(0, 0, 0, width, height);
 
@@ -75,6 +78,7 @@ void Renderer::end_frame() {
 }
 
 void Renderer::resize(const int width, const int height) {
+    SC_LOG_DEBUG("Resizing renderer: {}x{} -> {}x{}", this->width, this->height, width, height);
     this->width = width;
     this->height = height;
     bgfx::reset(width, height, vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE);

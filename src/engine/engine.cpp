@@ -85,11 +85,22 @@ void Engine::shutdown() {
         return;
     }
 
+    SC_LOG_INFO("Shutting down engine...");
     is_running = false;
 
+    scene_manager.reset();
+    SC_LOG_DEBUG("Scene manager shut down");
+    
+    renderer.reset();
+    SC_LOG_DEBUG("Renderer shut down");
+    
+    input_manager.reset();
+    SC_LOG_DEBUG("Input manager shut down");
+    
     window.reset();
+    SC_LOG_DEBUG("Window shut down");
 
-    std::cout << "Engine shut down." << std::endl;
+    SC_LOG_INFO("Engine shut down completed");
 }
 
 
