@@ -1,4 +1,7 @@
 #include "renderer.hpp"
+
+#include <backends/imgui_impl_sdl3.h>
+
 #include "window.hpp"
 
 Renderer::Renderer() : window(nullptr), reset_flags(0), clear_flags(0), width(0), height(0), vsync(false),
@@ -77,6 +80,7 @@ bool Renderer::init(Window *window, bool vsync) {
     io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
     ImGui::StyleColorsDark();
+    ImGui_ImplSDL3_InitForOther(sdl_window);
 
     imgui_layer = new ImGuiLayer();
     imgui_layer->reset(width, height);

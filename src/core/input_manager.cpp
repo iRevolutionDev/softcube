@@ -1,5 +1,7 @@
 #include "input_manager.hpp"
 
+#include <backends/imgui_impl_sdl3.h>
+
 #include "window.hpp"
 
 InputManager::InputManager() : window(nullptr), next_callback_id(0) {
@@ -31,6 +33,7 @@ void InputManager::update(double deltaTime) {
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        ImGui_ImplSDL3_ProcessEvent(&event);
         switch (event.type) {
             case SDL_EVENT_QUIT:
                 SC_LOG_INFO("Received quit event, setting window to close");

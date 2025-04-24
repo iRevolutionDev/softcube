@@ -14,6 +14,7 @@ ImGuiLayer::ImGuiLayer() {
 }
 
 ImGuiLayer::~ImGuiLayer() {
+    ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }
 
