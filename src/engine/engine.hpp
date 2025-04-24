@@ -3,6 +3,8 @@
 #include <string>
 #include <entt/entt.hpp>
 
+#include "core/logging.hpp"
+
 class Window;
 class SceneManager;
 class Renderer;
@@ -16,6 +18,8 @@ class InputManager;
  * subsystems and orchestrating the main game loop.
  */
 class Engine {
+    SC_LOG_GROUP(LogGroups::ENGINE);
+
 public:
     Engine();
 

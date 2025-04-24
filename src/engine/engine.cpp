@@ -16,7 +16,7 @@ Engine::~Engine() {
 }
 
 bool Engine::init(int argc, char **argv) {
-    std::cout << "Initializing engine..." << std::endl;
+    SC_LOG_INFO("Initializing engine...");
 
     window = std::make_unique<Window>();
     input_manager = std::make_unique<InputManager>();

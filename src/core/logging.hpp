@@ -13,6 +13,7 @@
 using LogGroupID = std::string_view;
 
 namespace LogGroups {
+    inline constexpr LogGroupID ENGINE = "CORE::ENGINE";
     inline constexpr LogGroupID CORE = "CORE";
     inline constexpr LogGroupID RENDERER = "RENDERER";
     inline constexpr LogGroupID WINDOW = "WINDOW";
