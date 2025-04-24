@@ -39,7 +39,7 @@ bool Engine::init(int argc, char **argv) {
     }
 
     if (!scene_manager->init()) {
-       SC_LOG_ERROR("Failed to initialize scene manager.");
+        SC_LOG_ERROR("Failed to initialize scene manager.");
         return false;
     }
 
@@ -68,10 +68,15 @@ bool Engine::run() {
     }
 
     scene_manager->update(delta_time);
-
     renderer->begin_frame();
 
+    renderer->begin_imgui();
+
+    ImGui::ShowDemoWindow();
+
     scene_manager->render(renderer.get());
+
+    renderer->end_imgui();
 
     renderer->end_frame();
 
@@ -90,13 +95,13 @@ void Engine::shutdown() {
 
     scene_manager.reset();
     SC_LOG_DEBUG("Scene manager shut down");
-    
+
     renderer.reset();
     SC_LOG_DEBUG("Renderer shut down");
-    
+
     input_manager.reset();
     SC_LOG_DEBUG("Input manager shut down");
-    
+
     window.reset();
     SC_LOG_DEBUG("Window shut down");
 

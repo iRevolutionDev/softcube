@@ -1,5 +1,6 @@
 #pragma once
 #include "logging.hpp"
+#include "graphics/imgui/imgui_layer.hpp"
 
 class Window;
 
@@ -52,6 +53,28 @@ public:
      */
     void set_clear_color(float r, float g, float b, float a);
 
+    /**
+     * @brief Begins a new ImGui frame
+     * 
+     * This method initializes an ImGui frame for UI rendering.
+     * Should be called after begin_frame() and before any ImGui commands.
+     */
+    void begin_imgui();
+
+    /**
+     * @brief Ends and renders the current ImGui frame
+     * 
+     * This method finalizes the ImGui frame and renders all UI elements.
+     * Should be called after all ImGui commands and before end_frame().
+     */
+    void end_imgui();
+
+    /**
+     * @brief Gets the ImGui layer used for UI rendering
+     * @return Pointer to the ImGuiLayer instance
+     */
+    [[nodiscard]] ImGuiLayer *get_imgui_layer() const { return imgui_layer; }
+
     [[nodiscard]] float get_width() const { return width; }
     [[nodiscard]] float get_height() const { return height; }
 
@@ -65,4 +88,7 @@ private:
     bgfx::FrameBufferHandle frame_buffer = BGFX_INVALID_HANDLE;
     float clear_color[4];
     bool initialized;
+
+    // ImGui layer for UI rendering
+    ImGuiLayer *imgui_layer = nullptr;
 };

@@ -2,7 +2,7 @@
 
 #include "window.hpp"
 
-InputManager::InputManager() : window(nullptr) {
+InputManager::InputManager() : window(nullptr), next_callback_id(0) {
     current_key_states.fill(KeyState::Released);
     previous_key_states.fill(KeyState::Released);
 

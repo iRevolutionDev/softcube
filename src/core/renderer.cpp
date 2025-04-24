@@ -1,7 +1,9 @@
 #include "renderer.hpp"
 #include "window.hpp"
 
-Renderer::Renderer() : window(nullptr), width(0), height(0) {
+Renderer::Renderer() : window(nullptr), reset_flags(0), clear_flags(0), width(0), height(0), vsync(false),
+                       clear_color{},
+                       initialized(false) {
 }
 
 Renderer::~Renderer() {
@@ -9,13 +11,19 @@ Renderer::~Renderer() {
         destroy(frame_buffer);
     }
 
+    if (imgui_layer) {
+        imgui_layer->shutdown();
+        delete imgui_layer;
+        imgui_layer = nullptr;
+    }
+
     bgfx::shutdown();
 }
 
 bool Renderer::init(Window *window, bool vsync) {
-    SC_LOG_INFO("Initializing renderer with dimensions {}x{}, vsync: {}", 
-               window->get_width(), window->get_height(), vsync);
-    
+    SC_LOG_INFO("Initializing renderer with dimensions {}x{}, vsync: {}",
+                window->get_width(), window->get_height(), vsync);
+
     this->window = window;
     this->width = window->get_width();
     this->height = window->get_height();
@@ -53,7 +61,8 @@ bool Renderer::init(Window *window, bool vsync) {
     init.type = bgfx::RendererType::Count;
     init.resolution.width = width;
     init.resolution.height = height;
-    init.resolution.reset = vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;    if (!bgfx::init(init)) {
+    init.resolution.reset = vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;
+    if (!bgfx::init(init)) {
         SC_LOG_ERROR("Failed to initialize BGFX renderer");
         return false;
     }
@@ -62,6 +71,17 @@ bool Renderer::init(Window *window, bool vsync) {
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
     bgfx::setViewRect(0, 0, 0, width, height);
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
+    io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+    ImGui::StyleColorsDark();
+
+    imgui_layer = new ImGuiLayer();
+    imgui_layer->reset(width, height);
+
+    initialized = true;
     return true;
 }
 
@@ -71,6 +91,15 @@ void Renderer::begin_frame() {
     }
 
     bgfx::touch(0);
+}
+
+void Renderer::begin_imgui() {
+    imgui_layer->new_frame();
+}
+
+void Renderer::end_imgui() {
+    ImGui::Render();
+    imgui_layer->render(ImGui::GetDrawData());
 }
 
 void Renderer::end_frame() {
@@ -83,6 +112,10 @@ void Renderer::resize(const int width, const int height) {
     this->height = height;
     bgfx::reset(width, height, vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE);
     bgfx::setViewRect(0, 0, 0, width, height);
+
+    if (imgui_layer) {
+        imgui_layer->reset(static_cast<uint16_t>(width), static_cast<uint16_t>(height));
+    }
 }
 
 void Renderer::set_clear_color(const float r, const float g, const float b, const float a) {
