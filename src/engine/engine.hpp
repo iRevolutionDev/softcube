@@ -18,7 +18,7 @@ class InputManager;
  * subsystems and orchestrating the main game loop.
  */
 class Engine {
-    SC_LOG_GROUP(LogGroups::ENGINE);
+    SC_LOG_GROUP(ENGINE);
 
 public:
     Engine();

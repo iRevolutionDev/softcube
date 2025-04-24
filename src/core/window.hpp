@@ -1,4 +1,5 @@
 #pragma once
+#include "logging.hpp"
 
 /**
  * @class Window
@@ -8,6 +9,8 @@
  * handling window events, and providing access to the window handle for rendering.
  */
 class Window {
+    SC_LOG_GROUP(CORE::WINDOW);
+
 public:
     Window();
 

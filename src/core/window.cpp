@@ -1,6 +1,8 @@
 #include "common.hpp"
 #include "window.hpp"
 
+#include "logging.hpp"
+
 Window::Window() : window(nullptr), width(0), height(0), fullscreen(false) {
 }
 
@@ -19,7 +21,7 @@ bool Window::init(const int width, const int height, const std::string &title, c
     this->fullscreen = fullscreen;
 
     if (SDL_Init(SDL_INIT_VIDEO) == 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        SC_LOG_INFO("SDL_Init Error: {}", SDL_GetError());
         return false;
     }
 
@@ -31,7 +33,7 @@ bool Window::init(const int width, const int height, const std::string &title, c
     window = SDL_CreateWindow(title.c_str(), width, height, window_flags);
 
     if (!window) {
-        std::cerr << "Failed to create SDL window: " << SDL_GetError() << std::endl;
+        SC_LOG_INFO("Failed to create SDL window: {}", SDL_GetError());
         return false;
     }
 

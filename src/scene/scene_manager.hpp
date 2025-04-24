@@ -4,7 +4,7 @@
 #include "core/logging.hpp"
 
 class SceneManager {
-    SC_LOG_GROUP(LogGroups::SCENE_MANAGER);
+    SC_LOG_GROUP(SCENE_MANAGER);
 
 public:
     SceneManager();

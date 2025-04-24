@@ -24,26 +24,26 @@ bool Engine::init(int argc, char **argv) {
     scene_manager = std::make_unique<SceneManager>();
 
     if (!window->init(1280, 720, "SoftCube Engine", false)) {
-        std::cerr << "Failed to initialize window." << std::endl;
+        SC_LOG_ERROR("Failed to initialize window.");
         return false;
     }
 
     if (!input_manager->init(window.get())) {
-        std::cerr << "Failed to initialize input manager." << std::endl;
+        SC_LOG_ERROR("Failed to initialize input manager.");
         return false;
     }
 
     if (!renderer->init(window.get(), false)) {
-        std::cerr << "Failed to initialize renderer." << std::endl;
+        SC_LOG_ERROR("Failed to initialize renderer.");
         return false;
     }
 
     if (!scene_manager->init()) {
-        std::cerr << "Failed to initialize scene manager." << std::endl;
+       SC_LOG_ERROR("Failed to initialize scene manager.");
         return false;
     }
 
-    auto game_scene = std::make_shared<GameScene>();
+    const auto game_scene = std::make_shared<GameScene>();
     scene_manager->add_scene(game_scene);
 
     is_running = true;

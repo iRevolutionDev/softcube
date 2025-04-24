@@ -13,29 +13,6 @@
 using LogGroupID = std::string_view;
 
 namespace LogGroups {
-    inline constexpr LogGroupID ENGINE = "CORE::ENGINE";
-    inline constexpr LogGroupID CORE = "CORE";
-    inline constexpr LogGroupID RENDERER = "RENDERER";
-    inline constexpr LogGroupID WINDOW = "WINDOW";
-    inline constexpr LogGroupID INPUT = "INPUT";
-    inline constexpr LogGroupID RESOURCE = "RESOURCE";
-    inline constexpr LogGroupID AUDIO = "AUDIO";
-
-    inline constexpr LogGroupID GAME = "GAME";
-    inline constexpr LogGroupID WORLD = "WORLD";
-    inline constexpr LogGroupID ENTITY = "ENTITY";
-    inline constexpr LogGroupID PHYSICS = "PHYSICS";
-
-    inline constexpr LogGroupID GRAPHICS = "GRAPHICS";
-    inline constexpr LogGroupID SHADER = "GRAPHICS::SHADER";
-
-    inline constexpr LogGroupID SCENE = "SCENE";
-    inline constexpr LogGroupID SCENE_MANAGER = "SCENE_MANAGER";
-
-    inline constexpr LogGroupID ECS = "ECS";
-    inline constexpr LogGroupID ECS_COMPONENT = "ECS::COMPONENT";
-    inline constexpr LogGroupID ECS_SYSTEM = "ECS::SYSTEM";
-
     inline LogGroupID create_group(const LogGroupID parent, const LogGroupID child) {
         static std::unordered_map<std::string, std::string> cache;
         const std::string key = std::string(parent) + "::" + std::string(child);
@@ -128,7 +105,7 @@ public:
 
             spdlog::sinks_init_list sinks = {console_sink, file_sink};
 
-            state.core_logger = std::make_shared<spdlog::logger>(LogGroups::CORE.data(), sinks);
+            state.core_logger = std::make_shared<spdlog::logger>("CORE", sinks);
             state.core_logger->set_level(spdlog::level::trace);
             state.core_logger->flush_on(spdlog::level::trace);
 
@@ -137,7 +114,6 @@ public:
             spdlog::set_level(spdlog::level::trace);
 
             state.initialized = true;
-            state.core_logger->info("logging system initialized");
         } catch (const spdlog::spdlog_ex &ex) {
             std::cerr << "logger initialization failed: " << ex.what() << std::endl;
         }
@@ -261,9 +237,7 @@ public:
 
 #define SC_LOG_GROUP(group) \
     private: \
-        static constexpr ::LogGroupID get_log_group() { return group; } \
-    public:
-
+        static constexpr ::LogGroupID get_log_group() { return #group; }
 #define SC_LOG_TRACE(...)    SC_LOG_GROUP_TRACE(get_log_group(), __VA_ARGS__)
 #define SC_LOG_DEBUG(...)    SC_LOG_GROUP_DEBUG(get_log_group(), __VA_ARGS__)
 #define SC_LOG_INFO(...)     SC_LOG_GROUP_INFO(get_log_group(), __VA_ARGS__)
