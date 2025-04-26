@@ -80,6 +80,20 @@ public:
     bool is_mouse_button_pressed(MouseButton button) const;
 
     /**
+     * @brief Checks if a mouse button was just pressed this frame
+     * @param button The mouse button to check
+     * @return True if the button was just pressed, false otherwise
+     */
+    bool is_mouse_button_just_pressed(MouseButton button) const;
+    
+    /**
+     * @brief Checks if a mouse button was just released this frame
+     * @param button The mouse button to check
+     * @return True if the button was just released, false otherwise
+     */
+    bool is_mouse_button_just_released(MouseButton button) const;
+    
+    /**
      * @brief Gets the current mouse position
      * @param x Output parameter for x coordinate
      * @param y Output parameter for y coordinate
@@ -113,6 +127,20 @@ public:
      * @param id The ID of the callback to unregister
      */
     void unregister_key_callback(int id);
+
+    /**
+     * @brief Maps a scancode to a keycode for certain special keys
+     * @param scanCode The SDL scan code to convert
+     * @return The corresponding keycode
+     */
+    int map_scan_code_to_key(int scanCode) const;
+    
+    /**
+     * @brief Gets the name of a key for display purposes
+     * @param keyCode The key code to get the name for
+     * @return A string representation of the key
+     */
+    std::string get_key_name(int keyCode) const;
 
 private:
     Window *window;
