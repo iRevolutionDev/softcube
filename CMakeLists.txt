@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.29)
-project(softcube VERSION 0.1.0 DESCRIPTION "A another minecraft clone" LANGUAGES CXX)
+project(softcube VERSION 0.1.0 DESCRIPTION "A modern Minecraft clone" LANGUAGES CXX)
 
-set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
-set(TEST_DIR "${PROJECT_SOURCE_DIR}/test")
+# Define source directories
+set(ENGINE_DIR "${PROJECT_SOURCE_DIR}/engine")
+set(GAME_DIR "${PROJECT_SOURCE_DIR}/game")
+set(TEST_DIR "${PROJECT_SOURCE_DIR}/tests")
 
-# Scripts Packages
-message(STATUS "Feching packages...")
+# Scripts for external packages
+message(STATUS "Fetching packages...")
 include(scripts/bgfx.cmake)
 include(scripts/sdl3.cmake)
 include(scripts/freetype.cmake)
@@ -14,25 +16,40 @@ include(scripts/entt.cmake)
 include(scripts/spdlog.cmake)
 
 # Project Files
-file(GLOB_RECURSE SRC_FILES
-        "${SRC_DIR}/**.cpp"
-        "${SRC_DIR}/**.hpp"
-        "${SRC_DIR}/**.h"
+file(GLOB_RECURSE ENGINE_SRC_FILES
+        "${ENGINE_DIR}/**.cpp"
+        "${ENGINE_DIR}/**.hpp"
+        "${ENGINE_DIR}/**.h"
 )
 
+file(GLOB_RECURSE GAME_SRC_FILES
+        "${GAME_DIR}/**.cpp"
+        "${GAME_DIR}/**.hpp"
+        "${GAME_DIR}/**.h"
+)
+
+# Create the engine library
+add_library(softcube_engine STATIC ${ENGINE_SRC_FILES})
+
+# Create the executable
 if (WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${SRC_FILES})
+    add_executable(${PROJECT_NAME} WIN32 ${GAME_SRC_FILES})
 else ()
-    add_executable(${PROJECT_NAME} ${SRC_FILES})
+    add_executable(${PROJECT_NAME} ${GAME_SRC_FILES})
 endif ()
 
-# Compiler Options
+# Set compiler options
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 26)
+set_property(TARGET softcube_engine PROPERTY CXX_STANDARD 26)
 
-source_group(TREE "${SRC_DIR}" PREFIX "src" FILES ${SRC_FILES})
+# Source grouping
+source_group(TREE "${ENGINE_DIR}" PREFIX "engine" FILES ${ENGINE_SRC_FILES})
+source_group(TREE "${GAME_DIR}" PREFIX "game" FILES ${GAME_SRC_FILES})
 
-target_precompile_headers(${PROJECT_NAME} PRIVATE "${SRC_DIR}/common.hpp")
+# Precompiled Headers
+target_precompile_headers(softcube_engine PRIVATE "${ENGINE_DIR}/core/common.hpp")
+target_precompile_headers(${PROJECT_NAME} PRIVATE "${ENGINE_DIR}/core/common.hpp")
 
 # Shader Compilation
 message(STATUS "Compiling shaders...")
@@ -65,11 +82,12 @@ add_library(shaders INTERFACE)
 target_sources(shaders INTERFACE ${VERTEX_SHADER_FILES} ${FRAGMENT_SHADER_FILES})
 target_include_directories(shaders INTERFACE "${CMAKE_BINARY_DIR}/include/generated/shaders")
 
-# Add shader dependency to main project
-add_dependencies(${PROJECT_NAME} shaders)
+# Add shader dependency to engine
+add_dependencies(softcube_engine shaders)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-        "${SRC_DIR}"
+# Configure engine library includes
+target_include_directories(softcube_engine PUBLIC
+        "${ENGINE_DIR}"
         "${BGFX_INCLUDE_DIR}"
         "${BIMG_INCLUDE_DIR}"
         "${BX_INCLUDE_DIR}"
@@ -82,7 +100,15 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         "${CMAKE_BINARY_DIR}/include/generated/shaders"
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
+# Configure game executable includes
+target_include_directories(${PROJECT_NAME} PUBLIC
+        "${ENGINE_DIR}"
+        "${GAME_DIR}"
+        "${CMAKE_BINARY_DIR}/include/generated/shaders"
+)
+
+# Link dependencies
+target_link_libraries(softcube_engine PUBLIC
         bgfx
         bimg
         bx
@@ -94,13 +120,17 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         ${CMAKE_DL_LIBS}
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_ENABLE_FREETYPE)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        softcube_engine
+)
 
-#Copy shaders directory to the build directory
+target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_ENABLE_FREETYPE)
+target_compile_definitions(softcube_engine PRIVATE IMGUI_ENABLE_FREETYPE)
+
+# Copy assets directory to the build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/assets/"
-        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/"
+        "${PROJECT_SOURCE_DIR}/assets" "${CMAKE_BINARY_DIR}/assets"
 )
 
 if (WIN32)
@@ -115,14 +145,4 @@ endif ()
 if (MSVC AND WIN32 AND NOT MSVC_VERSION VERSION_LESS 142)
     target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:/INCREMENTAL>)
     target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:/ZI>)
-endif ()
-
-if (WIN32)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC SOFT_CUBE_PLATFORM_WINDOWS)
-elseif (UNIX)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC SOFT_CUBE_PLATFORM_LINUX)
-elseif (APPLE)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC SOFT_CUBE_PLATFORM_MACOS)
-elseif (ANDROID)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC SOFT_CUBE_PLATFORM_ANDROID)
 endif ()
