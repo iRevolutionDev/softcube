@@ -7,6 +7,10 @@
 #include <Windows.h>
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+#if defined(_DEBUG) || defined(DEBUG)
+    AllocConsole();
+#endif
+
     const auto engine_instance = std::make_unique<Engine>();
 
     engine_instance->init(__argc, __argv);
