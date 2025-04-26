@@ -67,6 +67,7 @@
 #include <bgfx/embedded_shader.h>
 
 #include "imgui.h"
+#include "misc/freetype/imgui_freetype.h"
 
 #include "SDL3/SDL.h"
 

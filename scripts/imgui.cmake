@@ -15,6 +15,7 @@ if (NOT imgui_POPULATED)
             "${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp"
             "${imgui_SOURCE_DIR}/backends/imgui_impl_dx11.cpp"
             "${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp"
+            "${imgui_SOURCE_DIR}/misc/freetype/imgui_freetype.cpp"
     )
 
     add_library(imgui STATIC ${SRC_IMGUI})
@@ -23,7 +24,10 @@ if (NOT imgui_POPULATED)
             "${imgui_SOURCE_DIR}"
             "${imgui_SOURCE_DIR}/backends"
             "${imgui_SOURCE_DIR}/misc/cpp"
+            "${imgui_SOURCE_DIR}/misc/freetype"
+            "${freetype_SOURCE_DIR}/include"
     )
-    target_link_libraries(imgui PRIVATE SDL3::SDL3)
+    target_compile_definitions(imgui PRIVATE IMGUI_ENABLE_FREETYPE)
+    target_link_libraries(imgui PRIVATE SDL3::SDL3 freetype)
 endif ()
 set_property(TARGET imgui PROPERTY CXX_STANDARD 23)

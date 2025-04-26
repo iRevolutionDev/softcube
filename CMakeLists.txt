@@ -8,6 +8,7 @@ set(TEST_DIR "${PROJECT_SOURCE_DIR}/test")
 message(STATUS "Feching packages...")
 include(scripts/bgfx.cmake)
 include(scripts/sdl3.cmake)
+include(scripts/freetype.cmake)
 include(scripts/imgui.cmake)
 include(scripts/entt.cmake)
 include(scripts/spdlog.cmake)
@@ -74,6 +75,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         "${BX_INCLUDE_DIR}"
         "${SDL3_INCLUDE_DIR}"
         "${imgui_SOURCE_DIR}"
+        "${imgui_SOURCE_DIR}/misc/freetype"
+        "${freetype_SOURCE_DIR}/include"
         "${spdlog_SOURCE_DIR}"
         "${entt_SOURCE_DIR}/src"
         "${CMAKE_BINARY_DIR}/include/generated/shaders"
@@ -87,14 +90,17 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         imgui
         shaders
         spdlog
+        freetype
         ${CMAKE_DL_LIBS}
 )
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_ENABLE_FREETYPE)
 
 #Copy shaders directory to the build directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/assets/shaders"
-        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/shaders"
+        "${PROJECT_SOURCE_DIR}/assets/"
+        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/"
 )
 
 if (WIN32)

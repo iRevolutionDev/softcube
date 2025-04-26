@@ -69,7 +69,6 @@ bool Engine::run() {
 
     scene_manager->update(delta_time);
     renderer->begin_frame();
-
     renderer->begin_imgui();
 
     ImGui::ShowDemoWindow();

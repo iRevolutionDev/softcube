@@ -58,22 +58,22 @@ void GameScene::on_leave() {
 
 void GameScene::on_unload() {
     SC_LOG_INFO("Unloading Game scene resources");
-    
+
     if (bgfx::isValid(vertex_buffer)) {
         bgfx::destroy(vertex_buffer);
         SC_LOG_DEBUG("Destroyed vertex buffer");
     }
-    
+
     if (bgfx::isValid(index_buffer)) {
         bgfx::destroy(index_buffer);
         SC_LOG_DEBUG("Destroyed index buffer");
     }
-    
+
     if (bgfx::isValid(program)) {
         bgfx::destroy(program);
         SC_LOG_DEBUG("Destroyed shader program");
     }
-    
+
     SC_LOG_INFO("Game scene resources unloaded");
 }
 
@@ -111,11 +111,15 @@ void GameScene::render(Renderer *renderer) {
     bgfx::setState(BGFX_STATE_DEFAULT);
 
     bgfx::submit(0, program);
+
+    ImGui::Begin("Controls"); {
+    }
+    ImGui::End();
 }
 
 void GameScene::create_cube() {
     SC_LOG_DEBUG("Creating cube geometry");
-    
+
     bgfx::VertexLayout layout = {};
     layout.begin()
             .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
@@ -125,7 +129,7 @@ void GameScene::create_cube() {
     vertex_buffer = bgfx::createVertexBuffer(
         bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)),
         layout);
-        
+
     if (!bgfx::isValid(vertex_buffer)) {
         SC_LOG_ERROR("Failed to create vertex buffer");
         return;
@@ -133,38 +137,38 @@ void GameScene::create_cube() {
 
     index_buffer = bgfx::createIndexBuffer(
         bgfx::makeRef(s_cubeIndices, sizeof(s_cubeIndices)));
-        
+
     if (!bgfx::isValid(index_buffer)) {
         SC_LOG_ERROR("Failed to create index buffer");
         return;
     }
-    
-    SC_LOG_DEBUG("Cube geometry created successfully: {} vertices, {} indices", 
-                sizeof(s_cubeVertices)/sizeof(PosColorVertex), 
-                sizeof(s_cubeIndices)/sizeof(uint16_t));
+
+    SC_LOG_DEBUG("Cube geometry created successfully: {} vertices, {} indices",
+                 sizeof(s_cubeVertices)/sizeof(PosColorVertex),
+                 sizeof(s_cubeIndices)/sizeof(uint16_t));
 }
 
 void GameScene::create_shaders() {
     SC_LOG_DEBUG("Creating shader program");
-    
+
     auto renderer_type = bgfx::getRendererType();
     SC_LOG_DEBUG("Using renderer type: {}", bgfx::getRendererName(renderer_type));
-    
+
     const auto vs = bgfx::createEmbeddedShader(
         &k_simple_vs,
         renderer_type,
         "v_simple");
-        
+
     if (!bgfx::isValid(vs)) {
         SC_LOG_ERROR("Failed to create vertex shader 'v_simple'");
         return;
     }
-    
+
     const auto fs = bgfx::createEmbeddedShader(
         &k_simple_fs,
         renderer_type,
         "f_simple");
-        
+
     if (!bgfx::isValid(fs)) {
         SC_LOG_ERROR("Failed to create fragment shader 'f_simple'");
         bgfx::destroy(vs);
@@ -172,11 +176,11 @@ void GameScene::create_shaders() {
     }
 
     program = createProgram(vs, fs, true);
-    
+
     if (!bgfx::isValid(program)) {
         SC_LOG_ERROR("Failed to create shader program");
         return;
     }
-    
+
     SC_LOG_DEBUG("Shader program created successfully");
 }

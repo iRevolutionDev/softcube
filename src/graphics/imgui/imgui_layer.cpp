@@ -27,8 +27,20 @@ void ImGuiLayer::init() {
             .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
             .end();
 
-    io.Fonts->AddFontDefault();
+    const auto current_path = std::filesystem::current_path();
+    const auto font_path = current_path / "assets" / "fonts" / "Roboto-Medium.ttf";
+
+    if (!exists(font_path)) {
+        SC_LOG_ERROR("Font file not found: {}", font_path.string());
+        return;
+    }
+
+    add_font(font_path.string().c_str(), 13.0f);
+
+    add_default_font();
+
     update_font_texture();
+
     m_texture_uniform = createUniform("s_tex", bgfx::UniformType::Sampler);
 
     const auto vs_handle = bgfx::createEmbeddedShader(&k_imgui_vs, bgfx::getRendererType(), "v_imgui");
@@ -148,4 +160,43 @@ void ImGuiLayer::update_font_texture() {
                                      bgfx::TextureFormat::BGRA8, 0, bgfx::copy(data, width * height * 4));
     ImGui::GetIO().Fonts->SetTexID(
         reinterpret_cast<ImTextureID>(reinterpret_cast<void *>(static_cast<uintptr_t>(m_font_texture.idx))));
+}
+
+ImFont *ImGuiLayer::add_font(const char *font_path, float size_pixels,
+                             const ImFontConfig *font_cfg,
+                             const ImWchar *glyph_ranges) const {
+    ImFontConfig config;
+    if (font_cfg) {
+        config = *font_cfg;
+    }
+
+    config.FontBuilderFlags |= m_freetype_flags;
+
+    SC_LOG_INFO("Loading font: {} at {}px", font_path, size_pixels);
+    ImFont *font = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+        font_path,
+        size_pixels,
+        &config,
+        glyph_ranges
+    );
+
+    if (!font) {
+        SC_LOG_ERROR("Failed to load font: {}", font_path);
+        return nullptr;
+    }
+
+    return font;
+}
+
+ImFont *ImGuiLayer::add_default_font(float size_pixels,
+                                     const ImFontConfig *font_cfg) const {
+    ImFontConfig config;
+    if (font_cfg) {
+        config = *font_cfg;
+    }
+
+    config.FontBuilderFlags |= m_freetype_flags;
+
+    SC_LOG_INFO("Loading default font at {}px", size_pixels);
+    return ImGui::GetIO().Fonts->AddFontDefault(&config);
 }
