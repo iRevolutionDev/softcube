@@ -32,11 +32,20 @@ namespace softcube {
         m_systems.push_back(m_hierarchy_system.get());
         m_systems.push_back(m_transform_system.get());
         m_systems.push_back(m_camera_system.get());
-        m_systems.push_back(m_mesh_renderer_system.get());
+
+        m_rendering_systems.push_back(m_mesh_renderer_system.get());
     }
 
     void EcsManager::update(const float dt) const {
         for (auto *system: m_systems) {
+            if (system->is_enabled()) {
+                system->update(dt);
+            }
+        }
+    }
+
+    void EcsManager::render(const float dt) const {
+        for (auto *system: m_rendering_systems) {
             if (system->is_enabled()) {
                 system->update(dt);
             }

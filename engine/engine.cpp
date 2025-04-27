@@ -74,7 +74,10 @@ bool Engine::run() const {
 
     renderer->begin_imgui();
     renderer->begin_frame();
+
+    ecs_manager->render(delta_time);
     scene_manager->render(renderer.get());
+
     renderer->end_frame();
     renderer->end_imgui();
 

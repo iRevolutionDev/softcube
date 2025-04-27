@@ -40,10 +40,16 @@ namespace softcube {
                   Window *window = nullptr);
 
         /**
-         * @brief Update all systems
+         * @brief Update all non-rendering systems
          * @param dt Delta time in seconds
          */
         void update(float dt) const;
+
+        /**
+         * @brief Update all rendering systems - should be called between renderer's begin_frame() and end_frame()
+         * @param dt Delta time in seconds
+         */
+        void render(float dt) const;
 
         /**
          * @brief Create a new entity
@@ -120,6 +126,7 @@ namespace softcube {
         std::unique_ptr<system::CameraSystem> m_camera_system;
         std::unique_ptr<system::MeshRendererSystem> m_mesh_renderer_system;
 
-        std::vector<system::System *> m_systems;
+        std::vector<system::System *> m_systems; // Non-rendering systems
+        std::vector<system::System *> m_rendering_systems; // Rendering systems
     };
 }
