@@ -94,7 +94,6 @@ void Renderer::begin_frame() {
     }
 
     bgfx::touch(0);
-    begin_imgui();
 }
 
 void Renderer::begin_imgui() {
@@ -108,7 +107,6 @@ void Renderer::end_imgui() {
 
 void Renderer::end_frame() {
     bgfx::frame();
-    end_imgui();
 }
 
 void Renderer::resize(const int width, const int height) {

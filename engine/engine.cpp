@@ -3,24 +3,27 @@
 #include "input/input_manager.hpp"
 #include "graphics/renderer/renderer.hpp"
 #include "scene/scene_manager.hpp"
+#include "ecs/ecs_manager.hpp"
 
 using namespace softcube;
 
 Engine::Engine()
     : is_running(false) {
+    g_engine = this;
 }
 
 Engine::~Engine() {
     shutdown();
+    g_engine = nullptr;
 }
 
 bool Engine::init(int argc, char **argv) {
     SC_INFO("Initializing engine...");
-
     window = std::make_unique<Window>();
     input_manager = std::make_unique<InputManager>();
     renderer = std::make_unique<Renderer>();
     scene_manager = std::make_unique<SceneManager>();
+    ecs_manager = std::make_unique<EcsManager>();
 
     if (!window->init(1280, 720, "SoftCube Engine", false)) {
         SC_ERROR("Failed to initialize window");
@@ -36,11 +39,13 @@ bool Engine::init(int argc, char **argv) {
         SC_ERROR("Failed to initialize renderer");
         return false;
     }
-
     if (!scene_manager->init()) {
         SC_ERROR("Failed to initialize scene manager");
         return false;
     }
+
+    ecs_manager->init(registry, renderer.get(), input_manager.get(), window.get());
+    SC_INFO("ECS manager initialized");
 
     is_running = true;
     SC_INFO("Engine initialization complete");
@@ -59,17 +64,19 @@ bool Engine::run() const {
     if (window->get_should_close()) {
         return false;
     }
-
     static auto last_time = std::chrono::high_resolution_clock::now();
     const auto current_time = std::chrono::high_resolution_clock::now();
     const float delta_time = std::chrono::duration<float>(current_time - last_time).count();
     last_time = current_time;
 
+    ecs_manager->update(delta_time);
     scene_manager->update(delta_time);
 
+    renderer->begin_imgui();
     renderer->begin_frame();
     scene_manager->render(renderer.get());
     renderer->end_frame();
+    renderer->end_imgui();
 
     return true;
 }

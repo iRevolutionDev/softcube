@@ -230,6 +230,15 @@ namespace softcube {
         bool operator!=(const Matrix3 &other) const {
             return !(*this == other);
         }
+
+        void set_column(const int index, const Vector3 &column) {
+            if (index < 0 || index > 2) {
+                throw std::out_of_range("Index out of range");
+            }
+            m[0][index] = column.x;
+            m[1][index] = column.y;
+            m[2][index] = column.z;
+        }
     };
 
     inline Matrix3 operator*(const float scalar, const Matrix3 &matrix) {

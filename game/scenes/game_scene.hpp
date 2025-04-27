@@ -1,6 +1,15 @@
 #pragma once
 #include "engine/scene/scene.hpp"
 #include "engine/core/logging.hpp"
+#include "engine/ecs/entity.hpp"
+
+namespace softcube {
+    class EntityFactory;
+    class EcsManager;
+    class Engine;
+}
+
+using namespace softcube;
 
 namespace game {
     /**
@@ -15,7 +24,7 @@ namespace game {
     public:
         GameScene();
 
-        virtual ~GameScene();
+        ~GameScene() override;
 
         void on_load() override;
 
@@ -28,5 +37,29 @@ namespace game {
         void update(double delta_time) override;
 
         void render(Renderer *renderer) override;
+
+    private:
+        /**
+         * @brief Create world entities including cameras and objects
+         */
+        void create_world_entities() const;
+
+        /**
+         * @brief Set the active camera
+         * @param camera_entity The camera entity to make active
+         */
+        void set_active_camera(Entity camera_entity) const;
+
+        /**
+         * @brief Update debug UI for camera info
+         */
+        void update_camera_debug_ui();
+
+        Engine *m_engine;
+        EcsManager *m_ecs_manager;
+        std::unique_ptr<EntityFactory> m_entity_factory;
+
+        Entity m_fps_camera;
+        Entity cube_object;
     };
 }

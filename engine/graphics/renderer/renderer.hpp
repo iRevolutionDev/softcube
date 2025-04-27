@@ -52,7 +52,7 @@ namespace softcube {
          * @param b Blue component (0-1)
          * @param a Alpha component (0-1)
          */
-        void set_clear_color(float r, float g, float b, float a);
+        static void set_clear_color(float r, float g, float b, float a);
 
         /**
          * @brief Begins a new ImGui frame

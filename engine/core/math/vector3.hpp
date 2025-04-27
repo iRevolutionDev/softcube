@@ -3,6 +3,10 @@
 #include "vector2.hpp"
 
 namespace softcube {
+    struct Quaternion;
+}
+
+namespace softcube {
     /**
      * @struct Vector3
      * @brief 3D vector with x, y, and z components
@@ -26,6 +30,8 @@ namespace softcube {
         Vector3(const Vector3 &) = default;
 
         Vector3 &operator=(const Vector3 &) = default;
+
+        Vector3 &&operator*(const Quaternion &rotation) const;
 
         Vector3(Vector3 &&) = default;
 
@@ -199,6 +205,10 @@ namespace softcube {
             float cos_angle = dot(other) / (length() * other.length());
             cos_angle = std::clamp(cos_angle, -1.0f, 1.0f);
             return std::acos(cos_angle);
+        }
+
+        bool is_zero() const {
+            return x == 0.0f && y == 0.0f && z == 0.0f;
         }
 
         Vector3 rotate_around_axis(const Vector3 &axis, float angle) const;

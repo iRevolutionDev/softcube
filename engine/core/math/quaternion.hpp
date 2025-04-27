@@ -1,7 +1,5 @@
 #pragma once
-#include "core/common.hpp"
 #include "vector3.hpp"
-#include "vector4.hpp"
 #include "matrix.hpp"
 #include "math_utils.hpp"
 
@@ -407,6 +405,10 @@ namespace softcube {
 
     inline Quaternion slerp(const Quaternion &a, const Quaternion &b, float t) {
         return a.slerp(b, t);
+    }
+
+    inline Vector3 &&Vector3::operator*(const Quaternion &rotation) const {
+        return rotation * *this;
     }
 
     inline Vector3 Vector3::rotate_around_axis(const Vector3 &axis, const float angle) const {

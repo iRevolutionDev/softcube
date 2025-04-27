@@ -2,6 +2,7 @@
 #include "core/common.hpp"
 
 namespace softcube {
+    class Engine;
     class Renderer;
 
     /**
@@ -67,8 +68,16 @@ namespace softcube {
          */
         entt::registry &get_registry() { return registry; }
 
+        /**
+         * @brief Gets the engine instance
+         * @return Pointer to the engine
+         */
+        static Engine *get_engine();
+
     protected:
         std::string name;
         entt::registry registry;
     };
 }
+
+inline Engine *g_engine{};

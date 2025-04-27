@@ -7,6 +7,7 @@ namespace softcube {
     class Renderer;
     class Window;
     class InputManager;
+    class EcsManager;
 
     /**
      * @class Engine
@@ -72,11 +73,18 @@ namespace softcube {
          */
         Window *get_window() const { return window.get(); }
 
+        /**
+         * @brief Gets the ECS manager
+         * @return Pointer to the ECS manager
+         */
+        EcsManager *get_ecs_manager() const { return ecs_manager.get(); }
+
     private:
         std::unique_ptr<Window> window;
         std::unique_ptr<InputManager> input_manager;
         std::unique_ptr<Renderer> renderer;
         std::unique_ptr<SceneManager> scene_manager;
+        std::unique_ptr<EcsManager> ecs_manager;
 
         entt::registry registry;
         bool is_running;
