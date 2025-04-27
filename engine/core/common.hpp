@@ -93,6 +93,8 @@
 // SDL3
 #include <SDL3/SDL.h>
 
+#include "math/math.hpp"
+
 // Engine-wide type definitions
 namespace softcube {
     using i8 = int8_t;
