@@ -42,10 +42,11 @@ bool Engine::init(int argc, char **argv) {
     if (!scene_manager->init()) {
         SC_ERROR("Failed to initialize scene manager");
         return false;
-    }
-
-    ecs_manager->init(registry, renderer.get(), input_manager.get(), window.get());
+    }    ecs_manager->init(registry, renderer.get(), input_manager.get(), window.get());
     SC_INFO("ECS manager initialized");
+
+    renderer->init_editor(ecs_manager.get());
+    SC_INFO("Editor layer initialized");
 
     is_running = true;
     SC_INFO("Engine initialization complete");
@@ -72,14 +73,14 @@ bool Engine::run() const {
     ecs_manager->update(delta_time);
     scene_manager->update(delta_time);
 
-    renderer->begin_imgui();
     renderer->begin_frame();
-
+    renderer->begin_imgui();
+    
     ecs_manager->render(delta_time);
     scene_manager->render(renderer.get());
-
-    renderer->end_frame();
+    
     renderer->end_imgui();
+    renderer->end_frame();
 
     return true;
 }

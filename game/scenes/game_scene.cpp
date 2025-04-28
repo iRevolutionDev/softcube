@@ -3,14 +3,14 @@
 #include <ecs/components/renderer/camera_controller_component.hpp>
 
 #include "ecs/components/basic/name_component.hpp"
+#include "ecs/components/basic/tag_component.hpp"
 #include "ecs/components/basic/transform_component.hpp"
 #include "ecs/components/renderer/camera_component.hpp"
 #include "graphics/renderer/renderer.hpp"
 #include "engine/ecs/entity_factory.hpp"
 #include "engine/ecs/ecs_manager.hpp"
 #include "engine/engine.hpp"
-#include "core/math/math_utils.hpp"
-#include "ecs/components/renderer/mesh_renderer_component.hpp"
+#include "input/input_manager.hpp"
 
 namespace game {
     GameScene::GameScene()
@@ -53,46 +53,50 @@ namespace game {
     }
 
     void GameScene::update(double delta_time) {
+        if (!m_engine || !m_engine->get_input_manager()) return;
+
+        if (const auto *input = m_engine->get_input_manager(); !input->is_scancode_pressed(SDL_SCANCODE_F12)) return;
+
+        m_editor_mode = !m_editor_mode;
+        m_engine->set_editor_mode(m_editor_mode);
+        SC_INFO("Editor mode: {}", m_editor_mode ? "enabled" : "disabled");
     }
 
     void GameScene::render(Renderer *renderer) {
-        ImGui::Begin("Game Scene");
-
-        ImGui::Text("Camera Controls:");
-        ImGui::BulletText("Right mouse button + Mouse move: Look around");
-        ImGui::BulletText("WASD: Move camera");
-        ImGui::BulletText("Q/E: Move up/down");
-        ImGui::BulletText("Shift: Run");
-        ImGui::BulletText("Mouse wheel: Zoom (orbit camera)");
-
-        if (ImGui::Button("Switch to FPS Camera")) {
-            set_active_camera(m_fps_camera);
-        }
-
-        ImGui::SameLine();
-
-        ImGui::Separator();
-        ImGui::Text("Test Cube");
-        static float cube_color[4] = {0.2f, 0.6f, 1.0f, 1.0f};
-        if (ImGui::ColorEdit4("Cube Color", cube_color)) {
-            if (cube_object && cube_object.has_component<component::MeshRenderer>()) {
-                auto &mesh_renderer = cube_object.get_component<component::MeshRenderer>();
-                mesh_renderer.color = Vector4(cube_color[0], cube_color[1], cube_color[2], cube_color[3]);
-            }
-        }
-
-        ImGui::End();
-
-        update_camera_debug_ui();
     }
 
-    void GameScene::create_world_entities() const {
+    void GameScene::create_world_entities() {
         if (!m_entity_factory || !m_ecs_manager) return;
 
         auto main_camera = m_entity_factory->create_camera(
-            {0.0f, 1.0f, -5.0f}, true);
-
+            {0.0f, 3.0f, -10.0f}, true);
+        main_camera.get_component<component::Name>().name = "Main Camera";
         main_camera.add_component<component::CameraController>();
+        main_camera.add_component<component::Tag>("MainCamera");
+
+        auto parent = m_ecs_manager->create_entity("Parent Object");
+        parent.add_component<component::Tag>("ParentTag");
+        parent.get_component<component::Transform>().position = {0.0f, 0.0f, 0.0f};
+
+        cube_object = m_entity_factory->create_cube({0.0f, 0.0f, 0.0f}, 1.0f, {0.2f, 0.6f, 1.0f, 1.0f});
+        cube_object.get_component<component::Name>().name = "Blue Cube";
+        cube_object.add_component<component::Tag>("Cube");
+        m_ecs_manager->set_parent(cube_object, parent);
+
+        auto child1 = m_entity_factory->create_cube({1.5f, 0.0f, 0.0f}, 0.5f, {1.0f, 0.2f, 0.2f, 1.0f});
+        child1.get_component<component::Name>().name = "Red Cube";
+        child1.add_component<component::Tag>("RedCube");
+        m_ecs_manager->set_parent(child1, parent);
+
+        auto child2 = m_entity_factory->create_cube({-1.5f, 0.0f, 0.0f}, 0.5f, {0.2f, 1.0f, 0.2f, 1.0f});
+        child2.get_component<component::Name>().name = "Green Cube";
+        child2.add_component<component::Tag>("GreenCube");
+        m_ecs_manager->set_parent(child2, parent);
+
+        auto nested_child = m_entity_factory->create_cube({0.0f, 1.0f, 0.0f}, 0.3f, {1.0f, 1.0f, 0.2f, 1.0f});
+        nested_child.get_component<component::Name>().name = "Yellow Cube";
+        nested_child.add_component<component::Tag>("YellowCube");
+        m_ecs_manager->set_parent(nested_child, child1);
 
         set_active_camera(main_camera);
 
@@ -100,7 +104,7 @@ namespace game {
     }
 
     void GameScene::set_active_camera(Entity camera_entity) const {
-        for (const auto view = m_engine->get_registry().view<component::Camera>(); auto entity: view) {
+        for (const auto view = m_engine->get_registry().view<component::Camera>(); const auto entity: view) {
             auto &camera = view.get<component::Camera>(entity);
             camera.is_main = false;
         }
@@ -116,42 +120,5 @@ namespace game {
         if (!m_ecs_manager) return;
 
         m_ecs_manager->set_active_camera(camera_entity);
-    }
-
-    void GameScene::update_camera_debug_ui() {
-        if (cube_object) {
-            auto &transform = cube_object.get_component<component::Transform>();
-
-            const auto rotation = Quaternion::rotation_y(0.01f);
-            transform.rotation = rotation * transform.rotation;
-            transform.local_rotation = transform.rotation;
-        }
-
-        if (ImGui::Begin("Camera Debug")) {
-            for (const auto view = m_engine->get_registry().view<component::Transform, component::Camera>(); const auto
-                 entity
-                 :
-                 view) {
-                const auto &transform = view.get<component::Transform>(entity);
-                const auto &camera = view.get<component::Camera>(entity);
-
-                std::string name = "Camera";
-                if (const Entity camera_entity{entity, &m_engine->get_registry()}; camera_entity.has_component<
-                    component::Name>()) {
-                    name = camera_entity.get_component<component::Name>().name;
-                }
-
-                if (ImGui::TreeNode(name.c_str())) {
-                    ImGui::Text("Position: [%.2f, %.2f, %.2f]",
-                                transform.position.x, transform.position.y, transform.position.z);
-
-                    ImGui::Text("Active: %s", camera.is_main ? "Yes" : "No");
-
-                    ImGui::TreePop();
-                }
-            }
-
-            ImGui::End();
-        }
     }
 }

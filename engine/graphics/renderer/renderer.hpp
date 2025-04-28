@@ -1,9 +1,11 @@
 #pragma once
 #include "core/logging.hpp"
 #include "graphics/layers/imgui_layer.hpp"
+#include "graphics/layers/editor_layer.hpp"
 
 namespace softcube {
     class Window;
+    class EcsManager;
 
     /**
      * @class Renderer
@@ -79,6 +81,35 @@ namespace softcube {
         [[nodiscard]] float get_width() const { return width; }
         [[nodiscard]] float get_height() const { return height; }
 
+        /**
+         * @brief Initialize the editor layer
+         * @param ecs_manager Pointer to the ECS manager
+         */
+        void init_editor(EcsManager *ecs_manager);
+
+        /**
+         * @brief Render the editor UI
+         */
+        void render_editor();
+
+        /**
+         * @brief Get the editor layer
+         * @return Pointer to the EditorLayer instance
+         */
+        [[nodiscard]] EditorLayer *get_editor_layer() const { return editor_layer; }
+
+        /**
+         * @brief Set if the editor is enabled
+         * @param enabled Whether the editor should be enabled
+         */
+        void set_editor_enabled(bool enabled) { editor_enabled = enabled; }
+
+        /**
+         * @brief Check if the editor is enabled
+         * @return True if the editor is enabled, false otherwise
+         */
+        [[nodiscard]] bool is_editor_enabled() const { return editor_enabled; }
+
     private:
         Window *window;
         uint32_t reset_flags;
@@ -92,5 +123,8 @@ namespace softcube {
 
         // ImGui layer for UI rendering
         ImGuiLayer *imgui_layer = nullptr;
+
+        EditorLayer *editor_layer = nullptr;
+        bool editor_enabled = true;
     };
 }

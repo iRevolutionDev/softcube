@@ -42,7 +42,7 @@ namespace game {
         /**
          * @brief Create world entities including cameras and objects
          */
-        void create_world_entities() const;
+        void create_world_entities();
 
         /**
          * @brief Set the active camera
@@ -50,16 +50,12 @@ namespace game {
          */
         void set_active_camera(Entity camera_entity) const;
 
-        /**
-         * @brief Update debug UI for camera info
-         */
-        void update_camera_debug_ui();
-
         Engine *m_engine;
         EcsManager *m_ecs_manager;
         std::unique_ptr<EntityFactory> m_entity_factory;
 
         Entity m_fps_camera;
         Entity cube_object;
+        bool m_editor_mode = true;
     };
 }

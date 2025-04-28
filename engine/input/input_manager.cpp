@@ -4,6 +4,7 @@
 
 #include "core/window.hpp"
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_mouse.h>
 
 namespace softcube {
     InputManager::InputManager() : window(nullptr), next_callback_id(0) {
@@ -23,6 +24,7 @@ namespace softcube {
 
     InputManager::~InputManager() {
         key_callbacks.clear();
+        set_relative_mouse_mode(false);
     }
 
     bool InputManager::init(Window *window) {
@@ -72,7 +74,6 @@ namespace softcube {
                 case SDL_EVENT_WINDOW_RESIZED:
                     SC_DEBUG("Window resize event: {}x{}", event.window.data1, event.window.data2);
                     break;
-
                 case SDL_EVENT_KEY_DOWN: {
                     if (event.key.repeat != 0 && event.key.repeat != 1) {
                         break;
@@ -87,6 +88,10 @@ namespace softcube {
                         }
                     }
 
+                    if (const int scan_code = event.key.scancode; scan_code < 512) {
+                        current_key_states[scan_code] = KeyState::Pressed;
+                    }
+
                     break;
                 }
                 case SDL_EVENT_KEY_UP: {
@@ -99,11 +104,15 @@ namespace softcube {
                             }
                         }
                     }
+
+                    if (const int scan_code = event.key.scancode; scan_code < 512) {
+                        current_key_states[scan_code] = KeyState::Released;
+                    }
                 }
                 break;
 
                 case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-                    if (const auto button = event.button.button - 1;
+                    if (const auto button = event.button.button - 2;
                         button >= 0 && button < static_cast<int>(MouseButton::Count)) {
                         mouse_button_states[button] = KeyState::Pressed;
                     }
@@ -235,8 +244,43 @@ namespace softcube {
         return SDL_GetKeyFromScancode(static_cast<SDL_Scancode>(scanCode), SDL_KMOD_NONE, false);
     }
 
+    bool InputManager::is_scancode_pressed(const int scanCode) const {
+        if (scanCode < 0 || scanCode >= 512) {
+            return false;
+        }
+
+        return current_key_states[scanCode] == KeyState::Pressed ||
+               current_key_states[scanCode] == KeyState::Held;
+    }
+
+    bool InputManager::is_scancode_just_pressed(const int scanCode) const {
+        if (scanCode < 0 || scanCode >= 512) {
+            return false;
+        }
+
+        return current_key_states[scanCode] == KeyState::Pressed &&
+               previous_key_states[scanCode] == KeyState::Released;
+    }
+
     std::string InputManager::get_key_name(int keyCode) {
         const char *key_name = SDL_GetKeyName(keyCode);
         return key_name ? std::string(key_name) : "Unknown";
+    }
+
+    void InputManager::set_relative_mouse_mode(bool enabled) {
+        if (relative_mouse_mode == enabled) {
+            return;
+        }
+
+        if (SDL_SetWindowRelativeMouseMode(static_cast<SDL_Window *>(window->get_native_handle()), enabled) != 0) {
+            relative_mouse_mode = enabled;
+            SC_INFO("Set relative mouse mode: {}", enabled ? "enabled" : "disabled");
+        } else {
+            SC_ERROR("Failed to set relative mouse mode: {}", SDL_GetError());
+        }
+    }
+
+    bool InputManager::is_relative_mouse_mode() const {
+        return relative_mouse_mode;
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "core/common.hpp"
 #include "core/logging.hpp"
+#include "graphics/renderer/renderer.hpp"
 
 namespace softcube {
     class SceneManager;
@@ -71,13 +72,29 @@ namespace softcube {
          * @brief Gets the window
          * @return Pointer to the window
          */
-        Window *get_window() const { return window.get(); }
-
-        /**
+        Window *get_window() const { return window.get(); } /**
          * @brief Gets the ECS manager
          * @return Pointer to the ECS manager
          */
         EcsManager *get_ecs_manager() const { return ecs_manager.get(); }
+
+        /**
+         * @brief Toggle the editor mode on/off
+         * @param enabled Whether the editor should be enabled
+         */
+        void set_editor_mode(const bool enabled) const {
+            if (!renderer) return;
+
+            renderer->set_editor_enabled(enabled);
+        }
+
+        /**
+         * @brief Check if the editor mode is enabled
+         * @return True if the editor is enabled, false otherwise
+         */
+        [[nodiscard]] bool is_editor_mode() const {
+            return renderer && renderer->is_editor_enabled();
+        }
 
     private:
         std::unique_ptr<Window> window;

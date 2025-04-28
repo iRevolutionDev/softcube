@@ -2,6 +2,7 @@
 #include "renderer.hpp"
 #include <backends/imgui_impl_sdl3.h>
 #include "core/window.hpp"
+#include "ecs/ecs_manager.hpp"
 
 Renderer::Renderer() : window(nullptr), reset_flags(0), clear_flags(0), width(0), height(0), vsync(false),
                        clear_color{},
@@ -17,6 +18,11 @@ Renderer::~Renderer() {
         imgui_layer->shutdown();
         delete imgui_layer;
         imgui_layer = nullptr;
+    }
+
+    if (editor_layer) {
+        delete editor_layer;
+        editor_layer = nullptr;
     }
 
     bgfx::shutdown();
@@ -72,13 +78,25 @@ bool Renderer::init(Window *window, bool vsync) {
     SC_INFO("BGFX renderer initialized successfully");
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
     bgfx::setViewRect(0, 0, 0, width, height);
-
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+    ImGui::StyleColorsDark();
+
+    ImGuiStyle &style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
     io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-    ImGui::StyleColorsDark();
     ImGui_ImplSDL3_InitForOther(sdl_window);
 
     imgui_layer = new ImGuiLayer();
@@ -98,11 +116,18 @@ void Renderer::begin_frame() {
 
 void Renderer::begin_imgui() {
     imgui_layer->new_frame();
+    if (editor_enabled && editor_layer) {
+        render_editor();
+    }
 }
 
 void Renderer::end_imgui() {
     ImGui::Render();
     imgui_layer->render(ImGui::GetDrawData());
+
+    if (const auto &io = ImGui::GetIO(); io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        ImGui::RenderPlatformWindowsDefault();
+    }
 }
 
 void Renderer::end_frame() {
@@ -128,5 +153,19 @@ void Renderer::set_clear_color(const float r, const float g, const float b, cons
                       static_cast<uint32_t>(static_cast<uint8_t>(a * 255));
 
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, rgba, 1.0f, 0);
+}
+
+void Renderer::init_editor(EcsManager *ecs_manager) {
+    if (!editor_layer) {
+        editor_layer = new EditorLayer();
+        editor_layer->init(ecs_manager);
+        SC_INFO("Editor layer initialized");
+    }
+}
+
+void Renderer::render_editor() {
+    if (editor_enabled && editor_layer) {
+        editor_layer->render();
+    }
 }
 

@@ -128,8 +128,16 @@ namespace softcube {
          * @brief Maps a scancode to a keycode for certain special keys
          * @param scanCode The SDL scan code to convert
          * @return The corresponding keycode
+         */        int map_scan_code_to_key(int scanCode) const;
+        
+        /**
+         * @brief Checks if a scancode key is currently pressed
+         * @param scanCode The scancode to check
+         * @return True if the key with that scancode is pressed, false otherwise
          */
-        int map_scan_code_to_key(int scanCode) const;
+        bool is_scancode_pressed(int scanCode) const;
+
+        bool is_scancode_just_pressed(int scanCode) const;
 
         /**
          * @brief Gets the name of a key for display purposes
@@ -137,6 +145,18 @@ namespace softcube {
          * @return A string representation of the key
          */
         static std::string get_key_name(int keyCode);
+
+        /**
+         * @brief Sets relative mouse mode, which captures the mouse and makes the cursor invisible
+         * @param enabled Whether to enable or disable relative mouse mode
+         */
+        void set_relative_mouse_mode(bool enabled);
+
+        /**
+         * @brief Checks if relative mouse mode is currently enabled
+         * @return True if relative mouse mode is enabled, false otherwise
+         */
+        bool is_relative_mouse_mode() const;
 
     private:
         Window *window;
@@ -154,13 +174,14 @@ namespace softcube {
         double last_mouse_y{};
         double scroll_x{};
         double scroll_y{};
+        bool relative_mouse_mode{false};
 
         // Callbacks
         struct KeyCallback {
             int key_code;
             std::function<void(int, KeyState)> callback;
         };
-
+        
         std::unordered_map<int, KeyCallback> key_callbacks;
         int next_callback_id;
     };
